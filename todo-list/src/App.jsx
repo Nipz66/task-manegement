@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import './App.css'
 import "tailwindcss";
+import TodoList from './components/TodoList';
+import ListAddForm from './components/ListAddForm';
 
 
 function App() {
@@ -13,10 +15,9 @@ function App() {
 
   const [taskList, setTaskList] = useState([]);
 
-  console.log(task);
 
   const handleOnChange = (e) => {
-    if (e.target.name == "priority") {
+    if (e.target.name === "priority") {
       setTask({ ...task, [e.target.name]: e.target.checked });
     } else {
       setTask({ ...task, [e.target.name]: e.target.value });
@@ -25,60 +26,62 @@ function App() {
   };
 
   const handleAdd = () => {
-    // const sampleList = [...taskList];
-    // sampleList.push(task);
-    // setTaskList(sampleList); // this method is use js this tow option are same output
-
-    setTaskList([...taskList, task]);  // React is use best
+    if (task.title !== "" && task.date !== "") {
+      // const sampleList = [...taskList];
+      // sampleList.push(tasks);
+      // setTaskList(sampleList);
+      setTaskList([...taskList, task]);
+      // clear the input after task added to the list
+      setTask({
+        title: "",
+        date: "",
+        status: false,
+        priority: false,
+      });
+    }
   };
 
+  const handleDelete = (id) => {
+    const newList = taskList.filter((tasks, idx) => idx == id);
+    setTaskList(newList);
+  };
+
+  const handleEdit = (tasks, id) => {
+    const newTask = taskList.filter((_, idx) => idx === id);
+    setTask(newTask[0]);
+
+
+    //select the edit id from the list
+    const newList = taskList.filter((_, idx) => idx == id);
+    setTaskList(newList);
+
+  }
+
+  const handleState = (idex) => {
+    const newList = taskList.map((item, index) => {
+      if (index === id) {
+        return {
+          ...item, status: !item.status,
+        };
+      }
+      return item;
+    });
+    setTaskList(newList);
+  };
 
   return (
     <div className='App'>
       <div className='h-screen w-auto bg-blue-200 px-6'>
-        <div className='flex items-center gap-8'>
-          <div className='flex flex-col'>
-            <label>Task</label>
-            <input
-              name="title"
-              type='text'
-              onChange={(e) => handleOnChange(e)}
-              value={task.title}
-              placeholder='task'
-            />
-          </div>
-          <div className='flex flex-col'>
-            <label>Date</label>
-            <input
-              name="date"
-              type='date'
-              onChange={(e) => handleOnChange(e)}
-              value={task.date}
-              placeholder='12/12/2021'
-            />
-          </div>
-          <div className='flex flex-col'>
-            <label>Priority</label>
-            <input
-              name="priority"
-              type='checkbox'
-              onChange={(e) => handleOnChange(e)}
-              checked={task.priority}
-            />
-          </div>
-          <div>
-            <button className='bg-blue-600 px-4 py-2 min-w-[6rem] rounded-2xl' onClick={() => handleAdd()}>Add</button>
-          </div>
-        </div>
-        <div className="mt-4">
-          {taskList.map((tasks, idx) => (
-            <div key={idx}>
-              <div>{tasks.title}</div>
-              <div>{tasks.date}</div>
-              <div>{tasks.priority}</div>
-            </div>
-          ))}
-        </div>
+        <ListAddForm
+          task={task}
+          handleOnChange={handleOnChange}
+          handleAdd={handleAdd}
+        />
+        <TodoList taskList={taskList}
+          handleDelete={handleDelete}
+          handleEdit={handleEdit}
+          handleState={handleState}
+        />
       </div>
     </div>
   );
